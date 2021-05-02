@@ -1,0 +1,74 @@
+package com.company;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.StringTokenizer;
+
+public class CalcServer
+{
+    public static void main(String args[]) throws IOException
+    {
+
+        //Устанавливаю порт
+        ServerSocket ss = new ServerSocket(4444);
+        System.out.println("Waiting connection....");
+        Socket s = ss.accept();
+        System.out.println("Connection accepted");
+        // dis - принимаемая информация, out - выходящая.
+        DataInputStream dis = new DataInputStream(s.getInputStream());
+        DataOutputStream out = new DataOutputStream(s.getOutputStream());
+
+        while (true)
+        {
+
+            String input = dis.readUTF();
+
+            if(input.equals("exit")) {
+                System.out.println("Connection interrupted");
+                break;
+            }
+
+            System.out.println("Equation received: " + input);
+            int result;
+
+            // Использую токенайзер для разделения строки.
+            // По дефолту строка разделяется пробелами
+            StringTokenizer st = new StringTokenizer(input);
+
+            int oprnd1 = Integer.parseInt(st.nextToken());
+            String operation = st.nextToken();
+            int oprnd2 = Integer.parseInt(st.nextToken());
+
+            // В зависимости от оператора определяю операцию
+
+            if (operation.equals("+"))
+            {
+                result = oprnd1 + oprnd2;
+            }
+
+            else if (operation.equals("-"))
+            {
+                result = oprnd1 - oprnd2;
+            }
+            else if (operation.equals("*"))
+            {
+                result = oprnd1 * oprnd2;
+            }
+            else
+            {
+                if (oprnd2 == 0)
+                {
+                    
+                }
+                result = oprnd1 / oprnd2;
+            }
+            System.out.println("Sending the result...");
+
+            // Отправляю клиенту.
+            out.writeUTF(Integer.toString(result));
+        }
+    }
+}
